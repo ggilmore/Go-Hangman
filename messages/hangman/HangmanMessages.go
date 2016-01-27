@@ -5,14 +5,14 @@ import utilities "../../utilities"
 type HangmanMessage interface {
 	RemainingTries() int
 	WordRepr() string
-	LettersTriedSet() *utilities.Set
+	LettersTriedSet() *utilities.RuneSet
 	Word() string
 }
 
 type DefaultHangmanMessage struct {
 	Tries              int
 	WordRepresentation string
-	LettersTried      *utilities.Set
+	LettersTried      *utilities.RuneSet
 	TargetWord         string
 }
 
@@ -24,7 +24,7 @@ func (message DefaultHangmanMessage) WordRepr() string {
 	return message.WordRepresentation
 }
 
-func (message DefaultHangmanMessage) LettersTriedSet() *utilities.Set {
+func (message DefaultHangmanMessage) LettersTriedSet() *utilities.RuneSet {
 	return message.LettersTried
 }
 

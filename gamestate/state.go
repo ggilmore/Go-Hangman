@@ -3,6 +3,7 @@ package gamestate
 import (
 	"../messages/hangman"
 	"../utilities"
+	"errors"
 )
 
 /*
@@ -13,20 +14,31 @@ and the number of guesses the player has remaining (triesRemaining)
 
 */
 
+const EMPTYTARGETWORDERROR = "targetWord must be non-empty"
+
 type GameState struct {
-	targetWord       string
-	wordLetterStatus utilities.Set
-	guessedLetters   utilities.Set
+	targetWord       string //must be non-empty
+	wordLetterStatus utilities.RuneSet
+	guessedLetters   utilities.RuneSet
 	triesRemaining   int
 }
 
-func New(targetWord string, maxTries int) GameState {
-	wordLetterStatus := make(utilities.Set)
+func New(targetWord string, maxTries int) (GameState, error) {
+
+	var state GameState
+
+	if len(targetWord) == 0 {
+		return state, errors.New(EMPTYTARGETWORDERROR)
+	}
+
+	wordLetterStatus := make(utilities.RuneSet)
 	for _, l := range targetWord {
 		wordLetterStatus[l] = false
 	}
 
-	return GameState{targetWord, wordLetterStatus, make(utilities.Set), maxTries}
+	state = GameState{targetWord, wordLetterStatus, make(utilities.RuneSet), maxTries}
+
+	return state, nil
 }
 
 func (state *GameState) checkWordSpelled() bool {
@@ -58,7 +70,7 @@ func (state *GameState) generateWordStatusRepresentation() string {
 		}
 	}
 
-	return utilities.Join(out)
+	return utilities.JoinRunes(out)
 }
 
 func (state *GameState) checkGuess(letter rune) bool {
@@ -72,17 +84,8 @@ func (state *GameState) checkGuess(letter rune) bool {
 
 }
 
-func (state *GameState) Guess(guess rune) hangman.HangmanMessage {
-
-	state.guessedLetters[guess] = true
-
-	if state.checkGuess(guess) {
-		state.wordLetterStatus[guess] = true
-	} else {
-		state.triesRemaining = state.triesRemaining - 1
-	}
-
-	guessedLettersCopy := utilities.SetCopy(state.guessedLetters)
+func (state *GameState) Peek() hangman.HangmanMessage{
+	guessedLettersCopy := utilities.RuneSetCopy(state.guessedLetters)
 
 	Message := hangman.DefaultHangmanMessage{
 		state.triesRemaining, state.generateWordStatusRepresentation(),
@@ -95,4 +98,17 @@ func (state *GameState) Guess(guess rune) hangman.HangmanMessage {
 	} else {
 		return hangman.StillPlaying{Message}
 	}
+}
+
+func (state *GameState) Guess(guess rune) hangman.HangmanMessage {
+
+	state.guessedLetters[guess] = true
+
+	if state.checkGuess(guess) {
+		state.wordLetterStatus[guess] = true
+	} else {
+		state.triesRemaining = state.triesRemaining - 1
+	}
+
+	return state.Peek()
 }
