@@ -21,9 +21,10 @@ type GameState struct {
 	wordLetterStatus utilities.RuneSet
 	guessedLetters   utilities.RuneSet
 	triesRemaining   int
+	isDummy          bool
 }
 
-func New(targetWord string, maxTries int) (GameState, error) {
+func New(targetWord string, maxTries int, isDummy bool) (GameState, error) {
 
 	var state GameState
 
@@ -36,7 +37,7 @@ func New(targetWord string, maxTries int) (GameState, error) {
 		wordLetterStatus[l] = false
 	}
 
-	state = GameState{targetWord, wordLetterStatus, make(utilities.RuneSet), maxTries}
+	state = GameState{targetWord, wordLetterStatus, make(utilities.RuneSet), maxTries, isDummy}
 
 	return state, nil
 }
@@ -84,7 +85,7 @@ func (state *GameState) checkGuess(letter rune) bool {
 
 }
 
-func (state *GameState) Peek() hangman.HangmanMessage{
+func (state *GameState) Peek() hangman.HangmanMessage {
 	guessedLettersCopy := utilities.RuneSetCopy(state.guessedLetters)
 
 	Message := hangman.DefaultHangmanMessage{

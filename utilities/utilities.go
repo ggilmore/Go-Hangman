@@ -11,7 +11,7 @@ random collection of helper functions and values
 
 const (
 	ALPHABET = "abcdefghijklmnopqrstuvwxyz "
-	INTEGERS = "1234567890"
+	DIGITS   = "1234567890"
 )
 
 type RuneSet map[rune]bool
@@ -21,7 +21,7 @@ var SET_OF_LETTERS = genAlphaNumericSet()
 
 func genAlphaNumericSet() RuneSet {
 	letterSet := RuneSet{}
-	for _, l := range ALPHABET + INTEGERS {
+	for _, l := range ALPHABET + DIGITS {
 		letterSet[l] = true
 	}
 	return letterSet

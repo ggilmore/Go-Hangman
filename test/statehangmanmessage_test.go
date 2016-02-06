@@ -10,10 +10,9 @@ import (
 	"strings"
 )
 
-
 //fixture
 func bookState1Try() gamestate.GameState {
-	state, _ := gamestate.New("book", 1)
+	state, _ := gamestate.New("book", 1, false)
 	return state
 }
 
@@ -22,29 +21,26 @@ func trimType(t string) string {
 	return strings.TrimLeft(t, ".")
 }
 
-
 /*
 getting the types so that we can do the comparisons in the test
- */
+*/
 var (
-	set = make(utilities.RuneSet)
+	set     = make(utilities.RuneSet)
 	message = hangman.DefaultHangmanMessage{0, "___", &set, "dummy"}
 
-	YouLostType = reflect.TypeOf(hangman.YouLost{message}).Name()
-	YouWonType = reflect.TypeOf(hangman.YouWon{message}).Name()
+	YouLostType      = reflect.TypeOf(hangman.YouLost{message}).Name()
+	YouWonType       = reflect.TypeOf(hangman.YouWon{message}).Name()
 	StillPlayingType = reflect.TypeOf(hangman.StillPlaying{message}).Name()
 )
 
-
 type testStruct struct {
-	descr              string //description of the test
+	descr              string              //description of the test
 	testState          gamestate.GameState //game state that we're testing
-	input              string //the series of input characters to the gamestate
-	wordRep            []string // the representation of the word after each input
-	tryCounts          []int //the number of tries remaining after each input
-	desiredOutMessages []string //the types of the output messages that we expect
+	input              string              //the series of input characters to the gamestate
+	wordRep            []string            // the representation of the word after each input
+	tryCounts          []int               //the number of tries remaining after each input
+	desiredOutMessages []string            //the types of the output messages that we expect
 }
-
 
 //battery of tests to run
 var tests = []testStruct{
@@ -80,9 +76,6 @@ var tests = []testStruct{
 		[]int{0},
 		[]string{YouLostType}}}
 
-
-
-
 func TestGameStateGuessSequence(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.descr)
@@ -95,16 +88,14 @@ func TestGameStateGuessSequence(t *testing.T) {
 
 			desiredType := trimType(test.desiredOutMessages[i])
 
-
 			if responseType != desiredType {
 				t.Error("Input So Far:", utilities.JoinRunes(inputSoFar), "Expected Type:", desiredType, "Got: ", responseType)
-			}else if response.WordRepr() != test.wordRep[i] {
+			} else if response.WordRepr() != test.wordRep[i] {
 				t.Error("Input So Far:", utilities.JoinRunes(inputSoFar), "Expected Word Rep:", test.wordRep[i], "Got: ", response.WordRepr())
-			}else if response.RemainingTries() != test.tryCounts[i]{
+			} else if response.RemainingTries() != test.tryCounts[i] {
 				t.Error("Input So Far:", utilities.JoinRunes(inputSoFar), "Expected # Tries:", test.tryCounts[i], "Got: ", response.RemainingTries())
 			}
 
 		}
 	}
 }
-
