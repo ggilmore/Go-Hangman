@@ -1,71 +1,71 @@
 package manager
 
 import (
-	"strings"
 	"../messages/managermsgs"
 	"errors"
-	"github.com/ggilmore/hangman/utilities"
+	"github.com/ggilmore/Go-Hangman/utilities"
+	"strings"
 )
 
+/**
+Parses player input, performs basic validation, and returns the relevant PlayerInputMessage types
+*/
 
 const (
-	PEEK_CMD = "peek"
-	SETUP_CMD = "setup"
-	GUESS_CMD = "guess"
-	DSC_CMD = "disconnect"
-	RESET_CMD = "reset"
+	PEEK_CMD    = "peek"
+	SETUP_CMD   = "setup"
+	GUESS_CMD   = "guess"
+	DSC_CMD     = "disconnect"
+	RESET_CMD   = "reset"
 	CONNECT_CMD = "connect"
-)
 
-const (
-	ALPHA_CHARS_ONLY_ERROR = "Only alphabetical runes allowed"
-	SETUP_
+	//Errors
+	ALPHANUMERIC_CHARS_ONLY_ERROR = "Only alphabetical runes allowed"
+	USAGE                         = PEEK_CMD + "\n" + RESET_CMD + "\n" + DSC_CMD + "\n" + GUESS_CMD + "[guessed_letter] \n" +
+		CONNECT_CMD + "[game_id] \n" + SETUP_CMD + "[target_word] \n"
 )
-
 
 func ParsePlayerInput(input string) (managermsgs.PlayerInputMessage, error) {
 	cleanInput := strings.ToLower(strings.TrimSpace(input))
 
 	var message managermsgs.PlayerInputMessage
+	var err error
 
 	//check for special characters (illegal)
 	for _, l := range cleanInput {
-		if isLetter, _ := utilities.SETOFLETTERS[l]; !isLetter {
-			return message, errors.New(ALPHA_CHARS_ONLY_ERROR)
+		if isValid, _ := utilities.SET_OF_LETTERS[l]; !isValid {
+			return message, errors.New(ALPHANUMERIC_CHARS_ONLY_ERROR)
 		}
 	}
 
 	args := strings.Split(cleanInput, " ")
 
-	switch len(args){
+	switch len(args) {
 	case 1:
 		switch args[0] {
 		case PEEK_CMD:
-			return managermsgs.Peek{""}, nil
+			message = managermsgs.Peek{""}
 		case RESET_CMD:
-			return managermsgs.Reset{""}, nil
+			message = managermsgs.Reset{""}
 		case DSC_CMD:
-			return managermsgs.Disconnect{""}, nil
+			message = managermsgs.Disconnect{""}
 		default:
-			return message
+			err = errors.New(USAGE)
 		}
 	case 2:
 		switch args[0] {
 		case GUESS_CMD:
-			return managermsgs.GuessLetter{args[1]}, nil
+			message = managermsgs.GuessLetter{args[1]}
 		case CONNECT_CMD:
-			return managermsgs.Connect{args[1]}, nil
+			message = managermsgs.Connect{args[1]}
 		case SETUP_CMD:
-			return managermsgs.Setup{args[1]}, nil
+			message = managermsgs.Setup{args[1]}
 		default:
-			return
+			err = errors.New(USAGE)
 		}
 	default:
-		return
+		err = errors.New(USAGE)
 	}
 
-
-
-
-
+	return message, err
 }
